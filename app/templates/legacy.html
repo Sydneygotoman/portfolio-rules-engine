@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Legacy</h1>
+<p class="muted">Wind-down book. New money never touches these positions. This mock seeds a
+representative subset — the real legacy book is closer to 123 positions (see docs/ARCHITECTURE.md
+open decision #4 on scope).</p>
+{% if positions %}
+<table>
+  <tr><th>Asset</th><th>Value</th><th>Venues</th><th>Note</th></tr>
+  {% for p in positions %}
+  <tr>
+    <td>{{ p.asset }}</td>
+    <td>${{ "%.2f"|format(p.value) }}</td>
+    <td>{% for v, q in p.venues.items() %}{{ v }}{{ ", " if not loop.last }}{% endfor %}</td>
+    <td>{{ p.metadata.thesis if p.metadata else "" }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="empty">No legacy positions.</p>
+{% endif %}
+{% endblock %}

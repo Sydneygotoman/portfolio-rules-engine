@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Positions</h1>
+{% if request.query_params.get("added") %}
+<div class="errors" style="border-color: var(--pass); color: var(--pass); background: rgba(62,207,142,0.1)">
+  Added {{ request.query_params.get("added") }}.
+  {% if request.query_params.get("warning") %}<br>Warning: {{ request.query_params.get("warning") }}{% endif %}
+</div>
+{% endif %}
+{% for row in rows %}
+{% set p = row.position %}
+<div class="card" style="margin-bottom: 12px;">
+  <div style="display:flex; justify-content: space-between; align-items baseline;">
+    <div>
+      <strong style="font-size:16px">{{ p.asset }}</strong>
+      <span class="muted">— {{ "%.1f"|format(row.weight * 100) }}% of portfolio, ${{ "%.0f"|format(p.value) }}</span>
+    </div>
+    <div>
+      {% for r in row.rules %}{% if r.status != 'pass' %}<span class="badge {{ r.status }}">{{ r.rule_name }}</span> {% endif %}{% endfor %}
+    </div>
+  </div>
+  <p class="muted">Venues: {% for v, q in p.venues.items() %}{{ v }} ({{ "%.4g"|format(q) }}){{ ", " if not loop.last }}{% endfor %}</p>
+  {% if p.metadata %}
+  <p class="muted">{{ p.metadata.thesis }}</p>
+  <table>
+    <tr><td class="muted">Catalyst</td><td>{{ p.metadata.catalyst_name }} ({{ p.metadata.catalyst_date }})</td></tr>
+    <tr><td class="muted">Cost basis</td><td>${{ p.metadata.cost_basis }}</td></tr>
+  </table>
+  {% endif %}
+  {% if row.rules %}
+  <table>
+    {% for r in row.rules %}
+    <tr><td class="muted">{{ r.rule_name }}</td><td><span class="badge {{ r.status }}">{{ r.status }}</span></td><td>{{ r.reason }}</td></tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</div>
+{% else %}
+<p class="empty">No target-portfolio positions yet — add one.</p>
+{% endfor %}
+{% endblock %}

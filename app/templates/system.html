@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>System</h1>
+<form method="post" action="/system/sync" style="margin-bottom: 20px;">
+  <button type="submit">Sync now</button>
+</form>
+<table>
+  <tr><th>Venue</th><th>Status</th><th>Last event</th><th>Message</th></tr>
+  {% for venue, event in per_venue.items() %}
+  <tr>
+    <td>{{ venue }}</td>
+    <td>
+      {% if event.event_type == "sync_ok" %}<span class="badge pass">ok</span>
+      {% elif event.event_type == "scope_refused" %}<span class="badge breach">scope refused</span>
+      {% else %}<span class="badge breach">sync failed</span>{% endif %}
+    </td>
+    <td class="muted">{{ event.created_at.strftime("%Y-%m-%d %H:%M UTC") }}</td>
+    <td>{{ event.message }}</td>
+  </tr>
+  {% endfor %}
+</table>
+<p class="muted" style="margin-top:16px">Key-scope verification: this mock always reports read-only scopes.
+A real deployment must refuse to sync (see above) if any venue reports trade or withdraw
+scope — see docs/SECURITY.md §2 for which venues have a confirmed way to check that.</p>
+{% endblock %}

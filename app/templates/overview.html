@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Overview</h1>
+<div class="grid">
+  <div class="card"><div class="label">Total value</div><div class="value">${{ "%.0f"|format(total) }}</div></div>
+  <div class="card"><div class="label">Open breaches</div><div class="value" style="color: var(--breach)">{{ breach_count }}</div></div>
+  <div class="card"><div class="label">Warnings</div><div class="value" style="color: var(--warning)">{{ warning_count }}</div></div>
+</div>
+
+<h2>Allocation vs. targets</h2>
+<table>
+  <tr><th>Bucket</th><th>Value</th><th>% of portfolio</th></tr>
+  <tr><td>Core (BTC+ETH) — target 50%</td><td>${{ "%.0f"|format(allocation.core) }}</td><td>{{ "%.1f"|format(allocation.core / total * 100 if total else 0) }}%</td></tr>
+  <tr><td>Satellite</td><td>${{ "%.0f"|format(allocation.satellite) }}</td><td>{{ "%.1f"|format(allocation.satellite / total * 100 if total else 0) }}%</td></tr>
+  <tr><td>Cash — floor 20%</td><td>${{ "%.0f"|format(allocation.cash) }}</td><td>{{ "%.1f"|format(allocation.cash / total * 100 if total else 0) }}%</td></tr>
+  <tr><td>Legacy</td><td>${{ "%.0f"|format(allocation.legacy) }}</td><td>{{ "%.1f"|format(allocation.legacy / total * 100 if total else 0) }}%</td></tr>
+</table>
+
+<h2>Top breaches</h2>
+{% if top_breaches %}
+<table>
+  <tr><th>Status</th><th>Rule</th><th>Asset</th><th>Reason</th></tr>
+  {% for r in top_breaches %}
+  <tr>
+    <td><span class="badge {{ r.status }}">{{ r.status }}</span></td>
+    <td>{{ r.rule_name }}</td>
+    <td>{{ r.asset or "—" }}</td>
+    <td>{{ r.reason }}</td>
+  </tr>
+  {% endfor %}
+</table>
+<p class="muted"><a href="/breaches" style="color: var(--accent)">See all breaches →</a></p>
+{% else %}
+<p class="empty">No open breaches.</p>
+{% endif %}
+{% endblock %}

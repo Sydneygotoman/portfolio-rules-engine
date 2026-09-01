@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Breaches</h1>
+{% if breaches %}
+<table>
+  <tr><th>Status</th><th>Rule</th><th>Asset</th><th>Computed</th><th>Threshold</th><th>Reason</th></tr>
+  {% for r in breaches %}
+  <tr>
+    <td><span class="badge {{ r.status }}">{{ r.status }}</span></td>
+    <td>{{ r.rule_name }}</td>
+    <td>{{ r.asset or "—" }}</td>
+    <td>{{ "%.4g"|format(r.computed_value) }}</td>
+    <td>{{ "%.4g"|format(r.threshold) }}</td>
+    <td>{{ r.reason }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="empty">Every rule currently passes.</p>
+{% endif %}
+{% endblock %}

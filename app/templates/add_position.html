@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Add Position</h1>
+<p class="muted">All six checklist fields are required. Empty fields block the save — this is the point of the tool.</p>
+{% if errors %}
+<div class="errors">
+  {% for e in errors %}{{ e }}<br>{% endfor %}
+</div>
+{% endif %}
+<form class="stack" method="post" action="/positions/add">
+  <div>
+    <label>Asset ticker</label>
+    <input name="asset" required value="{{ values.get('asset', '') }}">
+  </div>
+  <div>
+    <label>Cost basis (AUD per unit, entered manually — never trust the exchange figure)</label>
+    <input name="cost_basis" type="number" step="any" required value="{{ values.get('cost_basis', '') }}">
+  </div>
+  <div>
+    <label>Entry date</label>
+    <input name="entry_date" type="date" required>
+  </div>
+  <div>
+    <label>Thesis (2 sentences)</label>
+    <textarea name="thesis" rows="2">{{ values.get('thesis', '') }}</textarea>
+  </div>
+
+  <h2 style="margin-top:8px">1. Value accrual mechanism</h2>
+  <div>
+    <label>Name the specific mechanism connecting network usage to token price</label>
+    <input name="value_accrual" required value="{{ values.get('value_accrual', '') }}">
+  </div>
+
+  <h2>2. Named catalyst + date window</h2>
+  <div>
+    <label>Catalyst name</label>
+    <input name="catalyst_name" required value="{{ values.get('catalyst_name', '') }}">
+  </div>
+  <div>
+    <label>Catalyst date</label>
+    <input name="catalyst_date" type="date" required>
+  </div>
+
+  <h2>3. Written invalidation</h2>
+  <div>
+    <label>What specifically would prove this wrong</label>
+    <input name="invalidation" required value="{{ values.get('invalidation', '') }}">
+  </div>
+
+  <h2>4. Unlock schedule</h2>
+  <div>
+    <label>% of supply vesting in the next 12 months</label>
+    <input name="unlock_schedule_pct" type="number" step="any" required value="{{ values.get('unlock_schedule_pct', '') }}">
+  </div>
+
+  <h2>5. Liquidity</h2>
+  <div>
+    <label>Can the full position be exited in one day without moving price?</label>
+    <input name="liquidity_note" required value="{{ values.get('liquidity_note', '') }}">
+  </div>
+
+  <h2>6. Fresh cash test</h2>
+  <div>
+    <label><input name="fresh_cash_test" type="checkbox" value="true" style="width:auto;display:inline"> Would I buy this today, at this price, owning none?</label>
+  </div>
+
+  <h2>Exit plan (set now, executed without deliberation)</h2>
+  <div><label>3x ladder price</label><input name="ladder_3x_price" type="number" step="any"></div>
+  <div><label>5x ladder price</label><input name="ladder_5x_price" type="number" step="any"></div>
+  <div><label>10x ladder price</label><input name="ladder_10x_price" type="number" step="any"></div>
+  <div><label>Hard stop price (-35%)</label><input name="hard_stop_price" type="number" step="any"></div>
+  <div><label>Time stop date</label><input name="time_stop_date" type="date"></div>
+
+  <div><label>Narrative cluster tag</label><input name="narrative_cluster" placeholder="e.g. solana, ai, rwa"></div>
+  <div>
+    <label>Classification</label>
+    <select name="classification">
+      <option value="satellite">satellite</option>
+      <option value="core">core</option>
+    </select>
+  </div>
+
+  <button type="submit">Save position</button>
+</form>
+{% endblock %}
