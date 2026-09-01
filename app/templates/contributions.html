@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Contributions</h1>
+<div class="grid">
+  <div class="card"><div class="label">Monthly contribution</div><div class="value">${{ monthly }}</div></div>
+  <div class="card"><div class="label">Core gap remaining</div><div class="value">${{ "%.0f"|format(core_gap) }}</div></div>
+  <div class="card"><div class="label">Months to close gap</div><div class="value">{{ "%.1f"|format(months_to_close_gap) }}</div></div>
+</div>
+<h2>Deployment schedule</h2>
+<p class="muted">Months 1–11: 100% into BTC/ETH, ~70/30 split, fixed day each month, no timing.
+From month 12: $300 core / $200 satellites. Cash floor tops up to 20% before anything else.
+Never deploy a full contribution in one buy — split across 3–4. New money never touches the legacy book.</p>
+{% endblock %}

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Portfolio Rules Engine</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <nav>
+    <div class="brand">Rules Engine</div>
+    <a href="/overview" class="{{ 'active' if active == 'overview' }}">Overview</a>
+    <a href="/breaches" class="{{ 'active' if active == 'breaches' }}">Breaches</a>
+    <a href="/positions" class="{{ 'active' if active == 'positions' }}">Positions</a>
+    <a href="/positions/add" class="{{ 'active' if active == 'add_position' }}">Add Position</a>
+    <a href="/contributions" class="{{ 'active' if active == 'contributions' }}">Contributions</a>
+    <a href="/legacy" class="{{ 'active' if active == 'legacy' }}">Legacy</a>
+    <a href="/journal" class="{{ 'active' if active == 'journal' }}">Journal</a>
+    <a href="/system" class="{{ 'active' if active == 'system' }}">System</a>
+  </nav>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
