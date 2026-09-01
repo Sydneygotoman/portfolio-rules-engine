@@ -33,7 +33,7 @@ refuse to start if trading scope is detected. Feasibility per venue:
 | Venue | Programmatic scope introspection | Status |
 |---|---|---|
 | Coinbase (Advanced Trade) | `GET /api/v3/brokerage/key_permissions` returns `can_view`, `can_trade`, `can_transfer`, `can_receive` | Confirmed via search of official CDP docs summary — refuse startup if `can_trade` or `can_transfer` is `true` |
-| KuCoin | Permission model (`General` read-only vs `Trade` vs `Transfer`) is set at key creation and is documented, but **no confirmed introspection endpoint** was found in this audit to read a key's own granted permission list back at runtime | **UNKNOWN — needs Stage 2 confirmation.** If no introspection endpoint exists, fall back to: an operator-declared expected-scope config value, checked by attempting a harmless read call and treating any trade-shaped call as forbidden at the code level (see §1) rather than detected at boot |
+| KuCoin | **Confirmed**: `GET /api/v1/user/api-key`, called with the key being checked, returns a `permission` field — a comma-separated list such as `General,Futures,Unified,Spot,Earn,InnerTransfer,Margin` | Refuse startup unless `permission` is exactly `General` (or a subset excluding `Spot`, `Margin`, `Futures`, `Unified`, `InnerTransfer`, and any other trade/transfer-capable value) |
 | Gate | Key permissions (Spot/Margin Trade, Wallet Read-Only, etc.) are set at creation; introspection endpoint **not confirmed** in this audit | Same fallback as KuCoin, pending Stage 3 confirmation |
 | Crypto.com | Keys default to read-only ("Can Read") with trading as an opt-in add; introspection endpoint **not confirmed** in this audit | Same fallback, pending Stage 3 confirmation |
 | Swyftx | **Unknown whether any introspection endpoint exists at all** — see `SWYFTX_API_AUDIT.md` §2, flagged there as the single highest-priority open item | Blocks Stage 2 sign-off |
@@ -103,10 +103,14 @@ the computed value, and the threshold, not the full portfolio snapshot.
 
 ## 8. Open items before Stage 1 sign-off
 
-1. Confirm or refute key-scope introspection availability for KuCoin, Gate,
-   Crypto.com, and Swyftx (§2) — currently only Coinbase is confirmed.
+1. Confirm or refute key-scope introspection availability for Gate, Crypto.com,
+   and Swyftx (§2) — Coinbase and KuCoin are now confirmed (KuCoin via
+   `GET /api/v1/user/api-key`, second-pass search, 2026-09-01; official
+   `kucoin.com` docs pages themselves remained network-blocked in this session,
+   so re-verify the exact endpoint/response shape against them directly before
+   relying on it in Stage 2 code).
 2. Confirm exact Swyftx read-only scope names (blocked by network access in this
    audit — see `SWYFTX_API_AUDIT.md`).
 3. Decide and document the fallback behavior (operator attestation + interface
-   boundary vs. hard refusal to run) for any venue where introspection turns out
-   to be unavailable.
+   boundary vs. hard refusal to run) for Gate, Crypto.com, and Swyftx, since
+   none of the three has a confirmed introspection endpoint yet.
