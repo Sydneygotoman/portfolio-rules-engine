@@ -20,7 +20,19 @@ ALL_ASSETS = [
 
 def sync_venue(db: Session, adapter: ExchangeAdapter) -> None:
     venue = adapter.venue
-    scopes = adapter.get_key_scopes()
+
+    # Fail closed: a scope check that can't be completed is treated the same
+    # as a detected trade scope — never sync on an unverified key. This is
+    # what actually catches Gate/Swyftx's missing-attestation RuntimeError
+    # and Swyftx's real PermissionError on a rejected key (see
+    # docs/SECURITY.md §2 and app/exchange_adapters/swyftx.py, gate.py).
+    try:
+        scopes = adapter.get_key_scopes()
+    except Exception as exc:  # noqa: BLE001 — adapter-raised, message is not credential-bearing
+        db.add(SystemEvent(venue=venue, event_type="scope_refused", message=f"scope check failed: {exc}"))
+        db.commit()
+        return
+
     if has_trading_scope(scopes):
         db.add(
             SystemEvent(

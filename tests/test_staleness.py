@@ -68,3 +68,23 @@ def test_startup_refuses_to_sync_a_trading_scoped_key(db_session):
 
     events = db_session.execute(select(SystemEvent).where(SystemEvent.venue == "kucoin")).scalars().all()
     assert any(e.event_type == "scope_refused" for e in events)
+
+
+def test_a_scope_check_that_raises_fails_closed_not_crashes(db_session):
+    """A venue whose get_key_scopes() itself raises (e.g. Swyftx/Gate's
+    missing-attestation RuntimeError, or a real rejected-key error) must be
+    treated as unverified and refused, not let the exception propagate and
+    take the rest of sync_all() down with it."""
+
+    class RaisingAdapter(MockAdapter):
+        def get_key_scopes(self):
+            raise RuntimeError("cannot verify this key's scopes")
+
+    adapter = RaisingAdapter("swyftx")
+    sync_venue(db_session, adapter)  # must not raise
+
+    balances = db_session.execute(select(BalanceSnapshot).where(BalanceSnapshot.venue == "swyftx")).scalars().all()
+    assert balances == []
+
+    events = db_session.execute(select(SystemEvent).where(SystemEvent.venue == "swyftx")).scalars().all()
+    assert any(e.event_type == "scope_refused" and "cannot verify" in e.message for e in events)
