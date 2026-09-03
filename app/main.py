@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app import seed as seed_module
 from app.aggregation import build_snapshot
 from app.db import SessionLocal, get_db, init_db
-from app.exchange_adapters import all_mock_adapters
+from app.exchange_adapters import get_adapters
 from app.models import JournalEntry, PositionMetadata, SystemEvent
 from app.rules_engine import breaches_only, evaluate_all, missing_checklist_fields
 from app.rules_engine.entry_gate import check_alt_outperformance
@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
     db = SessionLocal()
     try:
         seed_module.seed(db)
-        sync_all(db, all_mock_adapters())
+        sync_all(db, get_adapters())
     finally:
         db.close()
     yield
@@ -231,7 +231,7 @@ def system_page(request: Request, db: Session = Depends(get_db)):
 
 @app.post("/system/sync")
 def trigger_sync(db: Session = Depends(get_db)):
-    sync_all(db, all_mock_adapters())
+    sync_all(db, get_adapters())
     return RedirectResponse("/system", status_code=303)
 
 
